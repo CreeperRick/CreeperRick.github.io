@@ -1,17 +1,26 @@
-(function() {
-    // --- AUDIO SUBSYSTEM OVERRIDE ---
-document.addEventListener('click', function() {
-    const spotifyIframe = document.getElementById('spotify-iframe');
+(function() {  
+    
+    // ========== AUDIO AUTO-INITIALIZATION ==========
+let audioInitialized = false;
+
+function initializeAudio() {
+    if (audioInitialized) return;
+    
+    const spotifyIframe = document.getElementById('spotify-widget');
     if (spotifyIframe) {
-        // We append a query param to the URL to "refresh" it into playing
-        // Note: This only works if the user has a Spotify session active
+        // Refreshing the src with autoplay=1 after a user gesture
         const currentSrc = spotifyIframe.src;
-        if (!currentSrc.includes('autoplay=1')) {
-            spotifyIframe.src = currentSrc + "&autoplay=1";
-            addLog("AUDIO_SUBSYSTEM: Initializing Autoplay...");
-        }
+        spotifyIframe.src = currentSrc + "&autoplay=1";
+        
+        addTerminalLine("AUDIO_SUBSYSTEM: Streaming initialized.");
+        audioInitialized = true;
     }
-}, { once: true }); // 'once: true' ensures this only runs on the first click
+}
+
+// Attach to the window to catch the first interaction
+window.addEventListener('click', initializeAudio, { once: true });
+window.addEventListener('keydown', initializeAudio, { once: true });
+
     
     // ========== MATRIX RAIN BACKGROUND ==========
     const canvas = document.getElementById('matrix-canvas');
@@ -184,6 +193,7 @@ document.addEventListener('click', function() {
     
 
 })();
+
 
 
 
