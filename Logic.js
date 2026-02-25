@@ -44,25 +44,28 @@
     setInterval(updateClock, 1000);
     updateClock();
     
-// --- DYNAMIC QUICK LINKS ---
-            const quickLinks = [
+// --- QUICK LINKS GENERATOR ---
+            const quickLinksData = [
                 { name: "GITHUB", url: "https://github.com/creeperrick" },
                 { name: "YOUTUBE", url: "https://youtube.com/@espdefeator" },
                 { name: "TIKTOK", url: "https://tiktok.com/@espdefeator" },
                 { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" },
-                { name: "DISCORD", url: "https://discord.com/users/1426713075989610698" },
+                { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" },
+                { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" },
+                { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" }
             ];
 
             const qlContainer = document.getElementById('quickLinksContainer');
             if (qlContainer) {
                 qlContainer.innerHTML = ''; 
-                quickLinks.forEach(link => {
+                quickLinksData.forEach(link => {
                     const a = document.createElement('a');
                     a.href = link.url;
                     a.target = "_blank";
                     a.textContent = link.name;
+                    a.style.display = "block"; // Keep buttons stacked
                     
-                    // Uses the addLog function already present in index.html
+                    // Uses the addLog function already in this script
                     a.onclick = () => {
                         addLog(`executing: ${link.name}_LINK`);
                     };
@@ -189,6 +192,7 @@
             terminalInputDisplay.innerText = '_';
         }
     });
+
 
 
 
