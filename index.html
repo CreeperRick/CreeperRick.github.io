@@ -233,48 +233,7 @@
         <div id="quickLinksContainer" class="social-grid" style="grid-template-columns: 1fr; overflow-y: auto; flex: 1; margin-top: 10px; padding-right: 5px;">
             </div>
     </div>
-</div> ```
-
-
-### 2. Update the JavaScript (`Logic.js`)
-To ensure the links actually "show up" and use the terminal logging function available in your project, update the `quickLinks` section in `Logic.js`.
-
-**Crucial:** Change `addTerminalLine` to `addLog` to match the function name defined in your `index.html`.
-
-```javascript
-window.addEventListener('load', () => {
-    const quickLinks = [
-        { name: "GITHUB", url: "https://github.com/creeperrick" },
-        { name: "YOUTUBE", url: "https://youtube.com/@espdefeator" },
-        { name: "TIKTOK", url: "https://tiktok.com/@espdefeator" },
-        { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" },
-        { name: "EXTRA_LINK_01", url: "#" },
-        { name: "EXTRA_LINK_02", url: "#" },
-        { name: "EXTRA_LINK_03", url: "#" }
-    ];
-
-    const container = document.getElementById('quickLinksContainer');
-    
-    if (container) {
-        container.innerHTML = ''; 
-        quickLinks.forEach(link => {
-            const a = document.createElement('a');
-            a.href = link.url;
-            a.target = "_blank";
-            a.textContent = link.name;
-            a.style.display = "block"; // Stack them vertically
-            
-            a.onclick = () => {
-                // Call addLog because that is what is defined in index.html
-                if (typeof addLog === 'function') {
-                    addLog(`executing: ${link.name}_LINK`);
-                }
-            };
-            
-            container.appendChild(a);
-        });
-    }
-});
+</div>
                     </div>
                 </div>
             </div>
