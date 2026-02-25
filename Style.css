@@ -10,14 +10,16 @@
     transition: background 0.2s;
 
 }
-/* Custom Scrollbar for Terminal aesthetic */
+/* Styling the scrollbar for the grid specifically */
 .social-grid::-webkit-scrollbar {
-    width: 4px;
+    width: 4px; /* Very thin so it doesn't take up space */
 }
+
 .social-grid::-webkit-scrollbar-track {
-    background: #0b140b;
+    background: transparent;
 }
+
 .social-grid::-webkit-scrollbar-thumb {
-    background: #1fff8e;
+    background: #1fff8e; /* Match your neon green */
     border-radius: 2px;
 }
