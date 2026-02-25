@@ -3,315 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPdefeator OS</title>
+    <title>ESPdefeator OS | V1.0</title>
     <style>
-        /* RESET — eDEX-UI ultra-minimalist, neon green */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Share Tech Mono', 'Courier New', monospace;
+        /* CSS VARIABLES FOR EASY TWEAKING */
+        :root {
+            --neon: #1fff8e;
+            --bg: #0c0c0c;
+            --panel-bg: rgba(15, 20, 15, 0.9);
+            --border: 1px solid #1fff8e;
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Share Tech Mono', monospace; }
+        
         body {
-            background-color: #0c0c0c;
+            background-color: var(--bg);
             height: 100vh;
+            width: 100vw;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            position: relative;
+            color: var(--neon);
         }
 
         #matrix-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-            opacity: 0.25;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; opacity: 0.2; pointer-events: none;
         }
 
-        .edex-terminal {
-            position: relative;
-            z-index: 20;
-            width: 95vw;
-            max-width: 1400px;
-            height: 90vh;
-            background: rgba(15, 18, 15, 0.9);
-            border: 2px solid #1fff8e;
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(31, 255, 142, 0.2);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            backdrop-filter: blur(4px);
+        /* MAIN WRAPPER - GRID PREVENTS GLITCHES */
+        .os-container {
+            position: relative; z-index: 10;
+            width: 96vw; height: 92vh;
+            display: grid;
+            grid-template-rows: 40px 1fr 40px; /* Header, Main, Footer */
+            border: 2px solid var(--neon);
+            background: var(--panel-bg);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(31, 255, 142, 0.2);
+            backdrop-filter: blur(2px);
         }
 
-        /* STATUS BAR */
-        .status-bar {
-            background: #0f1a0f;
-            border-bottom: 2px solid #1fff8e;
-            padding: 8px 20px;
-            display: flex;
-            justify-content: space-between;
-            color: #2eff9e;
-            font-size: 0.9rem;
-            text-transform: uppercase;
+        /* HEADER */
+        .os-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; border-bottom: 2px solid var(--neon);
+            background: rgba(0, 40, 0, 0.3); font-size: 0.9rem;
         }
 
-        .dot { width: 10px; height: 10px; background: #1fff8e; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 5px #1fff8e; } 50% { opacity: 0.3; } }
+        /* MAIN CONTENT AREA */
+        .os-main {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 10px; padding: 10px; min-height: 0; /* Important for scrolling */
+        }
 
-        /* MAIN GRID */
-        .edex-main { display: flex; flex: 1; padding: 6px; gap: 6px; min-height: 0; }
+        /* SIDEBAR / EXPLORER */
+        .explorer-panel {
+            border: var(--border); border-radius: 4px;
+            display: flex; flex-direction: column; background: rgba(0,0,0,0.3);
+        }
+        .panel-label {
+            padding: 8px; background: var(--neon); color: black;
+            font-weight: bold; font-size: 0.8rem; text-transform: uppercase;
+        }
+        .explorer-content { flex: 1; overflow-y: auto; padding: 10px 0; }
+        .tree-item {
+            padding: 8px 15px; cursor: pointer; font-size: 0.9rem;
+            transition: 0.2s; display: block; text-decoration: none; color: inherit;
+        }
+        .tree-item:hover { background: rgba(31, 255, 142, 0.1); }
+        .tree-item.active { background: rgba(31, 255, 142, 0.2); border-left: 4px solid var(--neon); }
 
-        /* FILE EXPLORER */
-        .file-explorer { width: 280px; background: #0b140b; border: 1px solid #1fff8e; border-radius: 8px; display: flex; flex-direction: column; }
-        .explorer-header { background: #1a2a1a; padding: 10px 12px; border-bottom: 2px solid #2aff8e; color: #adffb0; font-weight: bold; display: flex; }
-        .explorer-tree { flex: 1; overflow-y: auto; padding: 12px 0; }
-        .tree-item { padding: 8px 12px 8px 30px; color: #9effb0; font-size: 0.9rem; position: relative; cursor: pointer; text-decoration: none; display: block; }
-        .tree-item:hover { background: rgba(26, 58, 26, 0.5); }
-        .tree-item.active { background: #1f4a1f; color: #fff; border-left: 3px solid #1fff8e; }
-        .tree-item::before { content: "📁"; position: absolute; left: 8px; }
-        .tree-item.file::before { content: "📄"; }
-
-        /* CENTER AREA */
-        .center-area { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-        .terminal-window { background: #0a100a; border: 1px solid #1fff8e; border-radius: 8px; flex: 2; display: flex; flex-direction: column; overflow: hidden; }
-        .terminal-titlebar { background: #1a2a1a; padding: 8px 16px; border-bottom: 2px solid #1fff8e; color: #b3ffb3; display: flex; justify-content: space-between; font-size: 0.75rem; }
-        .terminal-content { flex: 1; padding: 16px; overflow-y: auto; color: #b0ffb0; font-size: 0.9rem; line-height: 1.4; }
-        .prompt { color: #9eff6e; font-weight: bold; }
-
-        /* BOTTOM PANELS */
-        .bottom-panels { display: flex; gap: 6px; flex: 1.2; }
-        .clock-panel { background: #0b140b; border: 1px solid #1fff8e; border-radius: 8px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .analog-clock { font-size: 3rem; color: #8affb0; text-shadow: 0 0 10px #1fff8e; }
-
-        .social-links-panel { background: #0b140b; border: 1px solid #1fff8e; border-radius: 8px; padding: 10px; flex: 1; display: flex; flex-direction: column; }
-        #quickLinksContainer { flex: 1; overflow-y: auto; margin-top: 8px; padding-right: 4px; }
+        /* CENTER TERMINAL & BOTTOM SECTION */
+        .center-stack { display: grid; grid-template-rows: 1fr 200px; gap: 10px; min-height: 0; }
         
-        /* QUICK LINKS BUTTONS */
-        .ql-btn { 
-            display: block; background: #0f1f0f; border: 1px solid #2eff9e; color: #fff; 
-            text-decoration: none; padding: 10px; font-size: 0.75rem; border-radius: 4px; 
-            text-align: center; margin-bottom: 6px; transition: 0.3s;
+        .terminal-box {
+            border: var(--border); border-radius: 4px;
+            display: flex; flex-direction: column; background: #000;
         }
-        .ql-btn:hover { background: #1fff8e; color: #000; box-shadow: 0 0 12px #1fff8e; }
+        .terminal-body { flex: 1; padding: 15px; overflow-y: auto; font-size: 0.9rem; color: #adffb0; }
+        
+        .bottom-widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .widget { border: var(--border); border-radius: 4px; padding: 10px; background: rgba(0,0,0,0.3); }
+
+        /* QUICK LINKS BUTTONS */
+        #quickLinksContainer { 
+            height: 120px; overflow-y: auto; margin-top: 10px; 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 5px;
+        }
+        .ql-btn {
+            background: rgba(31, 255, 142, 0.05); border: var(--border);
+            color: var(--neon); padding: 8px; text-align: center;
+            text-decoration: none; font-size: 0.7rem; border-radius: 2px;
+        }
+        .ql-btn:hover { background: var(--neon); color: black; }
 
         /* FOOTER */
-        .edex-footer { background: #0f1a0f; border-top: 2px solid #1fff8e; padding: 8px 20px; color: #4eff9e; font-size: 0.75rem; display: flex; justify-content: space-between; }
+        .os-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; border-top: 2px solid var(--neon);
+            font-size: 0.8rem; background: rgba(0, 40, 0, 0.3);
+        }
 
-        /* Scrollbar Styling */
+        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #1fff8e; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb { background: var(--neon); }
     </style>
 </head>
 <body>
 
-    <canvas id="matrix-canvas"></canvas>
+<canvas id="matrix-canvas"></canvas>
 
-    <div class="edex-terminal">
-        <div class="status-bar">
-            <div class="status-item"><span class="dot"></span> ESPDEFEATOR_OS v1.0.4</div>
-            <div class="status-item" id="currentPath">⚡ //ROOT/</div>
-            <div class="status-item">UPTIME: <span id="uptime">00:00:00</span></div>
+<div class="os-container">
+    <div class="os-header">
+        <div>● SYSTEM_ACTIVE</div>
+        <div id="pathDisplay">PATH: //ROOT/</div>
+        <div id="uptimeDisplay">00:00:00</div>
+    </div>
+
+    <div class="os-main">
+        <div class="explorer-panel">
+            <div class="panel-label">File Explorer</div>
+            <div class="explorer-content" id="fileTree"></div>
         </div>
 
-        <div class="edex-main">
-            <div class="file-explorer">
-                <div class="explorer-header">
-                    <span>STRUCTURE</span>
-                    <span style="flex:1; text-align:right; font-size: 0.7rem; opacity: 0.7;" id="folderIndicator">//</span>
-                </div>
-                <div class="explorer-tree" id="fileTree"></div>
-            </div>
-
-            <div class="center-area">
-                <div class="terminal-window">
-                    <div class="terminal-titlebar">
-                        <span>BASH — SESSION_01</span>
-                        <span>TTY7</span>
-                    </div>
-                    <div class="terminal-content" id="terminalContent">
-                        <div><span class="prompt">system@esp:~$</span> ./init_os --verbose</div>
-                        <div>> Initializing Matrix Kernel... <span style="color:#1fff8e">[OK]</span></div>
-                        <div>> Mounting virtual_fs... <span style="color:#1fff8e">[OK]</span></div>
-                        <div id="dynamicTerminalLine"></div>
-                    </div>
-                </div>
-
-                <div class="bottom-panels">
-                    <div class="clock-panel">
-                        <div class="analog-clock" id="largeClock">00:00:00</div>
-                        <div style="color:#4eff8a; font-size:0.6rem; letter-spacing: 2px;">TIME_SYNC_UTC</div>
-                    </div>
-                    <div class="social-links-panel">
-                        <div style="color:#8affb0; border-bottom:1px solid rgba(31, 255, 142, 0.3); font-size:0.7rem; padding-bottom:4px;">⤷ QUICK_LINKS</div>
-                        <div id="quickLinksContainer"></div>
-                    </div>
+        <div class="center-stack">
+            <div class="terminal-box">
+                <div class="panel-label">Command Output</div>
+                <div class="terminal-body" id="termOut">
+                    <div>>> Initializing boot sequence...</div>
+                    <div>>> Filesystem loaded. Welcome, User.</div>
+                    <div id="anchor"></div>
                 </div>
             </div>
-        </div>
 
-        <div class="edex-footer">
-            <span>📡 CONNECTION: SECURE_ENCRYPTED</span>
-            <span>NODES: <span id="nodeCount">2048</span> | ADDR: 127.0.0.1</span>
+            <div class="bottom-widgets">
+                <div class="widget">
+                    <div class="panel-label">Clock</div>
+                    <div style="font-size: 3rem; text-align: center; margin-top: 10px;" id="clock">00:00:00</div>
+                </div>
+                <div class="widget">
+                    <div class="panel-label">Social Hub</div>
+                    <div id="quickLinksContainer"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script>
-        (function() {
-            // --- MATRIX BACKGROUND ---
-            const canvas = document.getElementById('matrix-canvas');
-            const ctx = canvas.getContext('2d');
-            let w, h, cols, drops;
-            const chars = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    <div class="os-footer">
+        <div>📡 STATUS: ONLINE</div>
+        <div>CPU: 14% | RAM: 2.4GB</div>
+        <div>ESPDEFEATOR_OS_V1</div>
+    </div>
+</div>
 
-            function resize() {
-                w = canvas.width = window.innerWidth;
-                h = canvas.height = window.innerHeight;
-                cols = Math.floor(w / 20);
-                drops = Array(cols).fill(0);
-            }
-            window.onresize = resize;
-            resize();
+<script>
+    // --- MATRIX ---
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    let w = canvas.width = window.innerWidth;
+    let h = canvas.height = window.innerHeight;
+    const drops = Array(Math.floor(w/20)).fill(0);
 
-            function drawMatrix() {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-                ctx.fillRect(0, 0, w, h);
-                ctx.fillStyle = "#0F0";
-                ctx.font = "15px monospace";
-                for (let i = 0; i < drops.length; i++) {
-                    const text = chars[Math.floor(Math.random() * chars.length)];
-                    ctx.fillText(text, i * 20, drops[i] * 20);
-                    if (drops[i] * 20 > h && Math.random() > 0.975) drops[i] = 0;
-                    drops[i]++;
+    function matrix() {
+        ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,w,h);
+        ctx.fillStyle = "#0F0"; ctx.font = "15px monospace";
+        drops.forEach((y, i) => {
+            const text = String.fromCharCode(0x30A0 + Math.random() * 96);
+            ctx.fillText(text, i * 20, y * 20);
+            if (y * 20 > h && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        });
+    }
+    setInterval(matrix, 50);
+
+    // --- LOGIC ---
+    const term = document.getElementById('termOut');
+    const tree = document.getElementById('fileTree');
+    const ql = document.getElementById('quickLinksContainer');
+
+    function log(msg) {
+        const div = document.createElement('div');
+        div.textContent = `>> ${msg}`;
+        term.insertBefore(div, document.getElementById('anchor'));
+        term.scrollTop = term.scrollHeight;
+    }
+
+    const fs = [
+        { name: 'socials', type: 'dir', children: [
+            { name: 'github.sh', url: 'https://github.com/creeperrick' },
+            { name: 'youtube.cfg', url: 'https://youtube.com/@espdefeator' },
+            { name: 'tiktok.link', url: 'https://tiktok.com/@espdefeator' }
+        ]},
+        { name: 'system.log', type: 'file' },
+        { name: 'readme.txt', type: 'file' }
+    ];
+
+    function buildTree() {
+        tree.innerHTML = '';
+        fs.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'tree-item';
+            div.textContent = (item.type === 'dir' ? '📁 ' : '📄 ') + item.name;
+            div.onclick = () => {
+                log(`Opening ${item.name}...`);
+                if(item.children) {
+                    item.children.forEach(c => log(` - Found: ${c.name}`));
                 }
-            }
-            setInterval(drawMatrix, 50);
-
-            // --- VIRTUAL FILE SYSTEM DATA ---
-            const fs = {
-                name: 'root',
-                type: 'folder',
-                children: [
-                    { 
-                        name: 'socials', 
-                        type: 'folder', 
-                        children: [
-                            { name: 'tiktok.link', type: 'file', url: 'https://tiktok.com/@espdefeator' },
-                            { name: 'youtube.cfg', type: 'file', url: 'https://youtube.com/@espdefeator' },
-                            { name: 'instagram.ini', type: 'file', url: 'https://instagram.com/espdefeator' },
-                            { name: 'github.dev', type: 'file', url: 'https://github.com/CreeperRick' }
-                        ]
-                    },
-                    { 
-                        name: 'matrix', 
-                        type: 'folder', 
-                        children: [
-                            { name: 'kernel.bin', type: 'file' },
-                            { name: 'glitch.sh', type: 'file' }
-                        ]
-                    },
-                    { name: 'README.md', type: 'file' }
-                ]
             };
+            tree.appendChild(div);
+        });
+    }
 
-            let currentFolder = fs;
-            let pathStack = [fs];
+    const links = [
+        { n: 'GITHUB', u: 'https://github.com/creeperrick' },
+        { n: 'YOUTUBE', u: 'https://youtube.com/@espdefeator' },
+        { n: 'TIKTOK', u: 'https://tiktok.com/@espdefeator' },
+        { n: 'INSTA', u: 'https://instagram.com/espdefeator' }
+    ];
 
-            const fileTreeEl = document.getElementById('fileTree');
-            const termContent = document.getElementById('terminalContent');
+    links.forEach(l => {
+        const a = document.createElement('a');
+        a.className = 'ql-btn'; a.href = l.u; a.target = '_blank'; a.textContent = l.n;
+        a.onclick = () => log(`Executing link: ${l.n}`);
+        ql.appendChild(a);
+    });
 
-            function addLog(text) {
-                const line = document.createElement('div');
-                line.style.margin = "2px 0";
-                line.innerHTML = `<span class="prompt">>></span> ${text}`;
-                termContent.insertBefore(line, document.getElementById('dynamicTerminalLine'));
-                termContent.scrollTop = termContent.scrollHeight;
-            }
+    function update() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB');
+        let up = Math.floor(performance.now() / 1000);
+        document.getElementById('uptimeDisplay').innerText = new Date(up * 1000).toISOString().substr(11, 8);
+    }
+    
+    setInterval(update, 1000);
+    buildTree();
+</script>
 
-            function renderTree() {
-                fileTreeEl.innerHTML = '';
-                if (pathStack.length > 1) {
-                    const up = document.createElement('div');
-                    up.className = 'tree-item folder';
-                    up.textContent = '..';
-                    up.onclick = () => { 
-                        pathStack.pop(); 
-                        currentFolder = pathStack[pathStack.length-1]; 
-                        renderTree(); 
-                        addLog('cd ..'); 
-                    };
-                    fileTreeEl.appendChild(up);
-                }
-
-                currentFolder.children.forEach(item => {
-                    const el = document.createElement(item.url ? 'a' : 'div');
-                    el.className = `tree-item ${item.type === 'folder' ? 'folder' : 'file'}`;
-                    el.textContent = item.name;
-                    if (item.url) { el.href = item.url; el.target = "_blank"; }
-
-                    el.onclick = (e) => {
-                        document.querySelectorAll('.tree-item').forEach(x => x.classList.remove('active'));
-                        el.classList.add('active');
-                        if (item.type === 'folder') {
-                            e.preventDefault();
-                            pathStack.push(item);
-                            currentFolder = item;
-                            renderTree();
-                            addLog(`cd ./${item.name}`);
-                        } else {
-                            addLog(`executing: ${item.name}`);
-                        }
-                    };
-                    fileTreeEl.appendChild(el);
-                });
-
-                const pathStr = pathStack.map(f => f.name === 'root' ? '' : f.name).join('/') + '/';
-                document.getElementById('folderIndicator').innerText = pathStr;
-                document.getElementById('currentPath').innerText = `⚡ //ROOT${pathStr}`;
-            }
-
-            // --- QUICK LINKS GENERATOR ---
-            const quickLinks = [
-                { name: "GITHUB", url: "https://github.com/CreeperRick" },
-                { name: "YOUTUBE", url: "https://youtube.com/@espdefeator" },
-                { name: "TIKTOK", url: "https://tiktok.com/@espdefeator" },
-                { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" }
-            ];
-
-            const qlContainer = document.getElementById('quickLinksContainer');
-            quickLinks.forEach(link => {
-                const a = document.createElement('a');
-                a.className = 'ql-btn';
-                a.href = link.url;
-                a.target = "_blank";
-                a.textContent = link.name;
-                a.onclick = () => addLog(`accessing_external: ${link.name}`);
-                qlContainer.appendChild(a);
-            });
-
-            // --- CLOCK & UPTIME ---
-            function updateUI() {
-                const now = new Date();
-                document.getElementById('largeClock').innerText = now.toLocaleTimeString('en-GB');
-                
-                let up = Math.floor(performance.now() / 1000);
-                let h = Math.floor(up / 3600).toString().padStart(2, '0');
-                let m = Math.floor((up % 3600) / 60).toString().padStart(2, '0');
-                let s = (up % 60).toString().padStart(2, '0');
-                document.getElementById('uptime').innerText = `${h}:${m}:${s}`;
-            }
-            setInterval(updateUI, 1000);
-
-            // Init
-            renderTree();
-        })();
-    </script>
 </body>
 </html>
