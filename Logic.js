@@ -1,4 +1,5 @@
 (function() {
+    document.querySelector('[title="Play"]').click()
     // ========== MATRIX RAIN BACKGROUND ==========
     const canvas = document.getElementById('matrix-canvas');
     const ctx = canvas.getContext('2d');
@@ -167,6 +168,9 @@
     // Start
     renderTree(currentFolder);
     addTerminalLine("System Initialized. Explorer Linked.");
+    
 
 })();
+
+
 
