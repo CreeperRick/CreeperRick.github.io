@@ -43,7 +43,37 @@
     }
     setInterval(updateClock, 1000);
     updateClock();
-
+    // ========== quickLinks ========== 
+    const quickLinks = [
+        { name: "GITHUB", url: "https://github.com/creeperrick" },
+        { name: "YOUTUBE", url: "https://youtube.com/@espdefeator" },
+        { name: "TIKTOK", url: "https://tiktok.com/@espdefeator" },
+        { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" },
+        { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" },
+        { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" },
+        { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" }
+    ];
+    
+    const container = document.getElementById('quickLinksContainer');
+    if (container) {
+        container.innerHTML = ''; // Clear hardcoded HTML
+        quickLinks.forEach(link => {
+            const a = document.createElement('a');
+            a.href = link.url;
+            a.target = "_blank";
+            a.textContent = link.name;
+            
+            // Link clicking feedback for the terminal
+            a.addEventListener('click', () => {
+                // This calls the log function already present in your code
+                if (typeof addLog === 'function') {
+                    addLog(`executing: ${link.name}_LINK`);
+                }
+            });
+    
+            container.appendChild(a);
+        });
+    }
     // ========== INTERACTIVE FILE SYSTEM ==========
     const fs = {
         name: 'root',
@@ -162,48 +192,4 @@
             terminalInputDisplay.innerText = '_';
         }
     });
-    // 1. Define your links array
-const quickLinks = [
-    { name: "GITHUB", url: "https://github.com/creeperrick" },
-    { name: "YOUTUBE", url: "https://youtube.com/@espdefeator" },
-    { name: "TIKTOK", url: "https://tiktok.com/@espdefeator" },
-    { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" },
-    { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" },
-    { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" },
-    { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" }
-];
-
-// 2. Function to render the links
-function renderQuickLinks() {
-    const container = document.getElementById('quickLinksContainer');
-    if (!container) return;
-
-    container.innerHTML = ''; // Clear existing
-    
-    quickLinks.forEach(link => {
-        const a = document.createElement('a');
-        a.href = link.url;
-        a.target = "_blank";
-        a.textContent = link.name;
-        
-        // Optional: Add a terminal log when clicking
-        a.onclick = () => {
-            if (typeof addTerminalLine === 'function') {
-                addTerminalLine(`Opening external link: ${link.name}`);
-            }
-        };
-        
-        container.appendChild(a);
-    });
-}
-
-// 3. Run the function
-renderQuickLinks();
-
-    // Start
-    renderTree(currentFolder);
-    addTerminalLine("System Initialized. Explorer Linked.");
-
-})();
-
 
