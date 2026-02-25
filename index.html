@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ESPdefeator | Cross-Platform</title>
+    <title>ESPdefeator | Cross-Platform OS</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Share Tech Mono', monospace; }
-        
+        /* RESET & BASE STYLES */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
+        }
+
         body {
             background-color: #0c0c0c;
             min-height: 100vh;
@@ -19,27 +25,22 @@
 
         #matrix-canvas {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; pointer-events: none; opacity: 0.25;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.25;
         }
 
-        /* GLITCH ANIMATION */
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0); }
-        }
-        .glitch-active { animation: glitch 0.2s infinite; filter: hue-rotate(90deg); }
-
+        /* MAIN CONTAINER */
         .edex-terminal {
             position: relative;
             z-index: 20;
             width: 95vw;
             max-width: 1400px;
-            height: 90vh; /* PC Default */
+            height: 90vh;
             background: #0f120f;
             border: 2px solid #1fff8e;
             border-radius: 12px;
@@ -47,24 +48,41 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            backdrop-filter: blur(1px);
+            transition: all 0.3s ease;
         }
 
+        /* STATUS BAR */
         .status-bar {
             background: #0f1a0f;
             border-bottom: 2px solid #1fff8e;
-            padding: 8px 15px;
+            padding: 8px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: #2eff9e;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
         }
 
-        .fs-btn {
-            background: #1fff8e; color: #000; border: none;
-            padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 0.7rem;
+        .status-item { display: flex; align-items: center; gap: 6px; }
+        .dot { width: 10px; height: 10px; background: #1fff8e; border-radius: 50%; animation: pulse 2s infinite; }
+        
+        .fullscreen-btn {
+            background: #1fff8e;
+            color: #000;
+            border: none;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            text-transform: uppercase;
         }
 
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* CONTENT AREA */
         .edex-main { display: flex; flex: 1; padding: 6px; gap: 6px; min-height: 0; }
 
         .file-explorer {
@@ -76,20 +94,33 @@
             flex-direction: column;
         }
 
+        .explorer-header {
+            background: #1a2a1a;
+            padding: 10px 12px;
+            border-bottom: 2px solid #2aff8e;
+            color: #adffb0;
+            font-weight: bold;
+            display: flex;
+        }
+
+        .explorer-tree { flex: 1; overflow-y: auto; padding: 12px 0; }
+
         .tree-item {
-            padding: 12px 12px 12px 30px; /* Larger for mobile touch */
+            padding: 10px 12px 10px 30px;
             color: #9effb0;
+            font-size: 0.95rem;
             position: relative;
             cursor: pointer;
             text-decoration: none;
             display: block;
         }
         .tree-item:hover { background: #1a3a1a; }
+        .tree-item.active { background: #1f4a1f; border-left: 4px solid #8affb0; color: #fff; }
         .tree-item::before { content: "📁"; position: absolute; left: 8px; }
         .tree-item.file::before { content: "📄"; }
 
+        /* CENTER TERMINAL AREA */
         .center-area { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-        
         .terminal-window {
             background: #0a100a;
             border: 1px solid #1fff8e;
@@ -100,10 +131,13 @@
             overflow: hidden;
         }
 
-        .terminal-content { flex: 1; padding: 15px; overflow-y: auto; color: #b0ffb0; font-size: 0.85rem; }
-        .prompt { color: #9eff6e; font-weight: bold; }
+        .terminal-titlebar { background: #1a2a1a; padding: 8px 16px; border-bottom: 2px solid #1fff8e; color: #b3ffb3; display: flex; justify-content: space-between; font-size: 0.8rem; }
+        .terminal-content { flex: 1; padding: 16px; overflow-y: auto; color: #b0ffb0; text-shadow: 0 0 5px #1fff8e; }
+        .prompt { color: #9eff6e; font-weight: bold; margin-right: 8px; }
 
+        /* WIDGETS */
         .widget-row { display: flex; gap: 6px; flex: 1.2; }
+        
         .clock-panel {
             background: #0b140b;
             border: 1px solid #1fff8e;
@@ -114,125 +148,217 @@
             justify-content: center;
             flex: 1;
         }
-        .analog-clock { font-size: 2.5rem; color: #8affb0; text-shadow: 0 0 10px #1fff8e; }
+        .analog-clock { font-size: 3rem; color: #8affb0; text-shadow: 0 0 15px #1fff8e; }
 
         .social-links-panel {
-            background: #0b140b; border: 1px solid #1fff8e; border-radius: 8px;
-            padding: 10px; flex: 1.5; overflow-y: auto; scrollbar-width: thin;
+            background: #0b140b;
+            border: 1px solid #1fff8e;
+            border-radius: 8px;
+            padding: 10px;
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
         }
 
-        /* MOBILE OVERRIDES */
-        @media (max-width: 850px) {
-            .edex-terminal { height: 98vh; }
-            .edex-main { flex-direction: column; overflow-y: auto; }
-            .file-explorer { width: 100%; max-height: 250px; }
+        .social-grid { display: grid; grid-template-columns: 1fr; gap: 6px; margin-top: 8px; }
+        .social-grid a { 
+            background: #0f1f0f; border: 1px solid #2eff9e; color: #fff; 
+            text-decoration: none; padding: 8px; font-size: 0.75rem; border-radius: 4px; text-align: center;
+        }
+
+        .edex-footer { background: #0f1a0f; border-top: 2px solid #1fff8e; padding: 8px 20px; color: #4eff9e; font-size: 0.8rem; display: flex; justify-content: space-between; }
+
+        /* --- RESPONSIVE LOGIC --- */
+        @media (max-width: 900px) {
+            .edex-terminal { height: auto; min-height: 98vh; width: 98vw; }
+            .edex-main { flex-direction: column; overflow-y: visible; }
+            .file-explorer { width: 100%; max-height: 300px; }
             .widget-row { flex-direction: column; }
-            .terminal-window { min-height: 300px; }
+            .terminal-window { min-height: 400px; }
+            .analog-clock { font-size: 2.2rem; }
+            .status-bar { font-size: 0.7rem; flex-wrap: wrap; }
         }
     </style>
 </head>
-<body id="body-main">
+<body>
 
     <canvas id="matrix-canvas"></canvas>
 
-    <div class="edex-terminal" id="app-container">
+    <div class="edex-terminal" id="mainApp">
         <div class="status-bar">
-            <div><button class="fs-btn" onclick="toggleFS()">FULLSCREEN</button></div>
-            <div id="currentPath">⚡ /socials/</div>
-            <div>UPTIME: <span id="uptime">0s</span></div>
+            <div class="status-item"><span class="dot"></span> ESPdefeator@OS</div>
+            <div class="status-item" id="currentPath">⚡ /socials/</div>
+            <div class="status-item">
+                <button class="fullscreen-btn" onclick="toggleFullscreen()">[F11] Fullscreen</button>
+                🕒 <span id="uptime">00:00:00</span>
+            </div>
         </div>
 
         <div class="edex-main">
             <div class="file-explorer">
-                <div style="background:#1a2a1a; padding:8px; border-bottom:1px solid #1fff8e;">📁 ROOT</div>
+                <div class="explorer-header">
+                    <span>📁 ROOT</span>
+                    <span style="flex:1; text-align:right;" id="folderIndicator">/socials/</span>
+                </div>
                 <div class="explorer-tree" id="fileTree"></div>
             </div>
 
             <div class="center-area">
                 <div class="terminal-window">
-                    <div class="terminal-content" id="termContent">
-                        <div><span class="prompt">┌─[user@esp]</span></div>
-                        <div><span class="prompt">└─$</span> system_init.sh</div>
-                        <div id="log-anchor"></div>
+                    <div class="terminal-titlebar">
+                        <span>bash 5.1</span>
+                        <span>system_log.sh</span>
+                    </div>
+                    <div class="terminal-content" id="terminalContent">
+                        <div class="terminal-line"><span class="prompt">┌─[user@esp]</span></div>
+                        <div class="terminal-line"><span class="prompt">└─$</span> ./startup_check</div>
+                        <div class="terminal-line">> Platform Detected: <span id="platformInfo">Checking...</span></div>
+                        <div id="dynamicTerminalLine"></div>
                     </div>
                 </div>
 
                 <div class="widget-row">
                     <div class="clock-panel">
-                        <div class="analog-clock" id="clock">00:00:00</div>
+                        <div class="analog-clock" id="largeClock">00:00:00</div>
+                        <div style="color:#4eff8a; font-size:0.6rem; letter-spacing: 2px;">LOCAL TIME</div>
                     </div>
+
                     <div class="social-links-panel">
-                        <iframe style="border-radius:8px" src="http://googleusercontent.com/spotify.com/4" width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                        <div style="color:#8affb0; border-bottom:1px solid #1fff8e; font-size:0.7rem; padding-bottom:4px; margin-bottom: 8px;">⤷ AUDIO_SUB</div>
+                        <iframe id="spotify-iframe" style="border-radius:8px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX6GJ9p9fSsh3?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                    </div>
+
+                    <div class="social-links-panel">
+                        <div style="color:#8affb0; border-bottom:1px solid #1fff8e; font-size:0.7rem; padding-bottom:4px;">⤷ NAV_LINKS</div>
+                        <div class="social-grid">
+                            <a href="https://github.com/creeperrick" target="_blank">GITHUB</a>
+                            <a href="https://youtube.com/@espdefeator" target="_blank">YOUTUBE</a>
+                            <a href="https://tiktok.com/@espdefeator" target="_blank">TIKTOK</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="edex-footer">
+            <span>📡 FS_STATUS: ACTIVE</span>
+            <span id="nodeCount">V1.2.0-STABLE</span>
+        </div>
     </div>
 
     <script>
-        // MATRIX
+        // MATRIX BACKGROUND
         const canvas = document.getElementById('matrix-canvas');
         const ctx = canvas.getContext('2d');
         let w, h, cols, drops;
-        function initM() {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+        function initMatrix() {
             w = canvas.width = window.innerWidth;
             h = canvas.height = window.innerHeight;
             cols = Math.floor(w / 20);
             drops = Array(cols).fill(0);
         }
-        function drawM() {
-            ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,w,h);
-            ctx.fillStyle = "#0F0"; ctx.font = "15px monospace";
-            for(let i=0; i<drops.length; i++) {
-                ctx.fillText(String.fromCharCode(0x30A0 + Math.random()*96), i*20, drops[i]*20);
-                if(drops[i]*20 > h && Math.random() > 0.975) drops[i] = 0;
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = "#0F0";
+            ctx.font = "15px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * 20, drops[i] * 20);
+                if (drops[i] * 20 > h && Math.random() > 0.975) drops[i] = 0;
                 drops[i]++;
             }
         }
-        window.onresize = initM; initM(); setInterval(drawM, 50);
 
-        // GLITCH EFFECT
-        function triggerGlitch() {
-            const el = document.getElementById('app-container');
-            el.classList.add('glitch-active');
-            setTimeout(() => el.classList.remove('glitch-active'), 300);
-        }
-        setInterval(() => { if(Math.random() > 0.95) triggerGlitch(); }, 3000);
-
-        // FULLSCREEN
-        function toggleFS() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-            else document.exitFullscreen();
+        // FULLSCREEN LOGIC
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
         }
 
-        // FS DATA
-        const fs = [
-            { name: 'tiktok.link', url: 'https://tiktok.com/@espdefeator' },
-            { name: 'youtube.cfg', url: 'https://youtube.com/@espdefeator' },
-            { name: 'github.dev', url: 'https://github.com/creeperrick' }
-        ];
+        // FILE SYSTEM
+        const fs = {
+            name: 'root',
+            children: [
+                { 
+                    name: 'socials', 
+                    type: 'folder', 
+                    children: [
+                        { name: 'tiktok.lnk', type: 'file', url: 'https://tiktok.com/@espdefeator' },
+                        { name: 'youtube.cfg', type: 'file', url: 'https://youtube.com/@espdefeator' },
+                        { name: 'github.dev', type: 'file', url: 'https://github.com/creeperrick' }
+                    ]
+                },
+                { name: 'system.bin', type: 'file' }
+            ]
+        };
 
-        const tree = document.getElementById('fileTree');
-        fs.forEach(item => {
-            const el = document.createElement('a');
-            el.className = 'tree-item file';
-            el.innerText = item.name;
-            el.href = item.url;
-            el.target = "_blank";
-            el.onclick = () => addLog(`exec ${item.name}...`);
-            tree.appendChild(el);
-        });
+        let currentFolder = fs.children[0];
+        let pathStack = [fs, fs.children[0]];
 
-        function addLog(msg) {
-            const div = document.createElement('div');
-            div.innerHTML = `<span class="prompt">>></span> ${msg}`;
-            document.getElementById('termContent').insertBefore(div, document.getElementById('log-anchor'));
+        function addLog(text) {
+            const term = document.getElementById('terminalContent');
+            const line = document.createElement('div');
+            line.style.fontSize = "0.8rem";
+            line.innerHTML = `<span class="prompt">>></span> ${text}`;
+            term.insertBefore(line, document.getElementById('dynamicTerminalLine'));
+            term.scrollTop = term.scrollHeight;
         }
 
+        function renderTree() {
+            const treeEl = document.getElementById('fileTree');
+            treeEl.innerHTML = '';
+            
+            if (currentFolder !== fs) {
+                const up = document.createElement('div');
+                up.className = 'tree-item';
+                up.textContent = '..';
+                up.onclick = () => { pathStack.pop(); currentFolder = pathStack[pathStack.length-1]; renderTree(); addLog('cd ..'); };
+                treeEl.appendChild(up);
+            }
+
+            currentFolder.children.forEach(item => {
+                const el = document.createElement(item.url ? 'a' : 'div');
+                el.className = `tree-item ${item.type === 'folder' ? '' : 'file'}`;
+                el.textContent = item.name;
+                if (item.url) { el.href = item.url; el.target = "_blank"; }
+                el.onclick = (e) => {
+                    if (item.type === 'folder') {
+                        e.preventDefault();
+                        pathStack.push(item);
+                        currentFolder = item;
+                        renderTree();
+                        addLog(`cd ./${item.name}`);
+                    } else { addLog(`opening ${item.name}`); }
+                };
+                treeEl.appendChild(el);
+            });
+
+            const pathStr = pathStack.map(f => f.name === 'root' ? '' : f.name).join('/') + '/';
+            document.getElementById('currentPath').innerText = `⚡ ${pathStr}`;
+        }
+
+        // INIT
+        window.addEventListener('resize', initMatrix);
+        initMatrix();
+        setInterval(drawMatrix, 50);
         setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
-            document.getElementById('uptime').innerText = Math.floor(performance.now()/1000) + "s";
+            const now = new Date();
+            document.getElementById('largeClock').innerText = now.toLocaleTimeString('en-GB');
+            document.getElementById('uptime').innerText = Math.floor(performance.now() / 1000) + "s";
         }, 1000);
+
+        document.getElementById('platformInfo').innerText = /Android|iPhone/i.test(navigator.userAgent) ? "MOBILE_X64" : "DESKTOP_X64";
+        renderTree();
     </script>
 </body>
 </html>
