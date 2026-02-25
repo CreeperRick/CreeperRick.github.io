@@ -43,27 +43,26 @@
     }
     setInterval(updateClock, 1000);
     updateClock();
-    // ========== quickLinks ========== 
+    
 // --- DYNAMIC QUICK LINKS ---
             const quickLinks = [
                 { name: "GITHUB", url: "https://github.com/creeperrick" },
                 { name: "YOUTUBE", url: "https://youtube.com/@espdefeator" },
                 { name: "TIKTOK", url: "https://tiktok.com/@espdefeator" },
                 { name: "INSTAGRAM", url: "https://instagram.com/espdefeator" },
-                { name: "EXTRA LINK 1", url: "#" },
-                { name: "EXTRA LINK 2", url: "#" }
+                { name: "DISCORD", url: "https://discord.com/users/1426713075989610698" },
             ];
 
             const qlContainer = document.getElementById('quickLinksContainer');
             if (qlContainer) {
-                qlContainer.innerHTML = ''; // Clear existing
+                qlContainer.innerHTML = ''; 
                 quickLinks.forEach(link => {
                     const a = document.createElement('a');
                     a.href = link.url;
                     a.target = "_blank";
                     a.textContent = link.name;
                     
-                    // Attach to the addLog function already in this script
+                    // Uses the addLog function already present in index.html
                     a.onclick = () => {
                         addLog(`executing: ${link.name}_LINK`);
                     };
@@ -71,6 +70,7 @@
                     qlContainer.appendChild(a);
                 });
             }
+    
     // ========== INTERACTIVE FILE SYSTEM ==========
     const fs = {
         name: 'root',
@@ -189,6 +189,7 @@
             terminalInputDisplay.innerText = '_';
         }
     });
+
 
 
 
