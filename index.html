@@ -5,7 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESPdefeator</title>
     <style>
+/* MOBILE OPTIMIZATION */
+@media (max-width: 768px) {
+    /* Hide the terminal, clock, and audio panels */
+    .center-area {
+        display: none;
+    }
 
+    /* Make the explorer fill the whole width */
+    .file-explorer {
+        width: 100% !important;
+        height: 100%;
+    }
+
+    /* Adjust the main container padding for smaller screens */
+    .edex-terminal {
+        width: 98vw;
+        height: 95vh;
+    }
+
+    .status-bar {
+        font-size: 0.7rem;
+        padding: 8px 10px;
+    }
+
+    /* Hide less important footer info to save space */
+    .edex-footer span:last-child {
+        display: none;
+    }
+}
         body {
             
             background-color: #0c0c0c;
